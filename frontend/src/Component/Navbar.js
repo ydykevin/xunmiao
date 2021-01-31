@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import {
 	NavBar,
 	SearchBar,
-	Button
+	Button,
+	List,
+	Drawer
 } from 'antd-mobile';
 import {
 	Row,
@@ -18,20 +20,45 @@ const { Option } = Select;
 
 export default class Navbar extends Component {
 
+	state = {
+		open: false
+	}
+
+	onOpenChange = () => {
+		this.setState({ open: !this.state.open });
+	}
+
 	floorChange = () => {
 		console.log("floor changed");
 	}
 
 	render() {
+		const sidebar = (<List>
+			{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i, index) => {
+				return (
+					<List.Item key={index}>功能{index + 1}</List.Item>
+				);
+			})}
+		</List>);
+
 		return (
 			<React.Fragment>
+				<Drawer
+					className="my-drawer"
+					style={{ minHeight: document.documentElement.clientHeight }}
+					enableDragHandle
+					contentStyle={{ color: '#A6A6A6', textAlign: 'center', paddingTop: 42 }}
+					sidebar={sidebar}
+					open={this.state.open}
+					onOpenChange={this.onOpenChange}
+				/>
 				<NavBar
 					mode="dark"
-					leftContent={<HomeOutlined key='1'/>}
-					rightContent={[<AppstoreOutlined key='2'/>]}
+					leftContent={<Button type='primary' onClick={this.onOpenChange}><AppstoreOutlined key='1' /></Button>}
+					rightContent={<HomeOutlined key='2' />}
 				>
 					寻喵
-                </NavBar>
+        </NavBar>
 				<SearchBar
 					placeholder="输入喵喵中文名或工号"
 					onSubmit={value => console.log(value, 'onSubmit')}
@@ -49,10 +76,10 @@ export default class Navbar extends Component {
 						</Select>
 					</Col>
 					<Col style={{ marginLeft: '10px', marginRight: '10px' }}>
-						<Button type="primary" size="small" inline onClick={()=>this.props.zoom(-0.1)}>-</Button>
+						<Button type="primary" size="small" inline onClick={() => this.props.zoom(-0.1)}>-</Button>
 					</Col>
 					<Col>
-						<Button type="primary" size="small" inline onClick={()=>this.props.zoom(0.1)}>+</Button>
+						<Button type="primary" size="small" inline onClick={() => this.props.zoom(0.1)}>+</Button>
 					</Col>
 				</Row>
 			</React.Fragment>
