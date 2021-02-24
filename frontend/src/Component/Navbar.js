@@ -16,13 +16,16 @@ import {
   AppstoreOutlined
 } from '@ant-design/icons';
 import cat from '../Image/cat.png';
+import axios from 'axios';
+import { global, showMessage } from '../Global';
 
 const { Option } = Select;
 
 export default class Navbar extends Component {
 
   state = {
-    navOpen: false
+    navOpen: false,
+    loadingSearch: false
   }
 
   onNavOpenChange = () => {
@@ -33,15 +36,66 @@ export default class Navbar extends Component {
     console.log("floor changed" + floor);
   }
 
+  onLeave = () => {
+    let formData = new FormData();
+    formData.append('name', '123');
+    formData.append('id', '123');
+    formData.append('floor', 30);
+    formData.append('block', 2);
+    formData.append('seat', 3);
+
+    axios.post(global.url + '/leave', formData).then(res => {
+      console.log(res);
+      if (res.data) {
+        showMessage('离座成功');
+      } else {
+        showMessage('离座失败，请联系管理员');
+      }
+    }).catch(err => {
+      console.log(err.response);
+      showMessage('离座失败，请联系管理员');
+    });
+  }
+
+  onSearch = (keyword) => {
+    if (this.state.loadingSearch || keyword === '') {
+      return;
+    }
+
+    this.props.setMapVisible(false);
+
+    let formData = new FormData();
+    formData.append('keyword', keyword);
+
+    axios.post(global.url + '/search', formData).then(res => {
+      console.log(res);
+      if (res.data.length === 1) {
+        // console.log("1");
+        this.props.setHighlight(res.data[0]);
+      } else if (res.data.length > 1) {
+        console.log(">1");
+      } else {
+        console.log("nothing");
+      }
+    }).catch(err => {
+      console.log(err.response);
+      showMessage('查询失败，请联系管理员');
+    });
+  }
+
   render() {
     const sidebar = (
+      // <List>
+      //   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i, index) => {
+      //     return (
+      //       <List.Item key={index}>功能{index + 1}</List.Item>
+      //     );
+      //   })}
+      // </List>);
       <List>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i, index) => {
-          return (
-            <List.Item key={index}>功能{index + 1}</List.Item>
-          );
-        })}
-      </List>);
+        <List.Item onClick={this.onLeave}>离坐</List.Item>
+      </List>
+    );
 
     return (
       <React.Fragment>
@@ -63,17 +117,17 @@ export default class Navbar extends Component {
         </NavBar>
         <SearchBar
           placeholder="输入喵喵中文名或工号"
-          onSubmit={value => console.log(value, 'onSubmit')}
-          onClear={value => console.log(value, 'onClear')}
-          onFocus={() => console.log('onFocus')}
-          onBlur={() => console.log('onBlur')}
-          onCancel={() => console.log('onCancel')}
+          onSubmit={(keyword) => this.onSearch(keyword)}
           showCancelButton
-          onChange={this.onChange}
+        // onClear={value => console.log(value, 'onClear')}
+        // onFocus={() => console.log('onFocus')}
+        // onBlur={() => console.log('onBlur')}
+        // onCancel={() => console.log('onCancel')}
+        // onChange={this.onChange}
         />
         <Row className='childCenter' style={{ margin: '10px', marginBottom: '0px', textAlign: 'center' }} justify='space-between'>
           <Col flex='auto'>
-            <Select defaultValue="XLK30" style={{ width: '100%', textAlign: 'center' }} onChange={this.onFloorChange}>
+            <Select defaultValue="XLK30" id='select' style={{ width: '100%', textAlign: 'center' }}>
               <Option value="XLK25">信利康25楼</Option>
               <Option value="XLK26">信利康26楼</Option>
               <Option value="XLK27">信利康27楼</Option>
@@ -84,10 +138,10 @@ export default class Navbar extends Component {
             </Select>
           </Col>
           <Col style={{ marginLeft: '10px', marginRight: '10px' }}>
-            <Button type="primary" size="small" inline onClick={() => this.props.zoom(-0.1)}>-</Button>
+            <Button type="primary" size="small" inline style={{ color: 'white', textDecoration: 'none' }} onClick={() => this.props.zoom(-0.1)}>-</Button>
           </Col>
           <Col>
-            <Button type="primary" size="small" inline onClick={() => this.props.zoom(0.1)}>+</Button>
+            <Button type="primary" size="small" inline style={{ color: 'white', textDecoration: 'none' }} onClick={() => this.props.zoom(0.1)}>+</Button>
           </Col>
         </Row>
         <Row justify='space-around' style={{ marginTop: '10px' }}>

@@ -26,13 +26,13 @@
   <!-- set `maximum-scale` for some compatibility issues -->
   <meta name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
-  <script src="https://as.alipayobjects.com/g/component/fastclick/1.0.6/fastclick.js"></script>
+  <!-- <script src="https://as.alipayobjects.com/g/component/fastclick/1.0.6/fastclick.js"></script> -->
   <script>
-    if ('addEventListener' in document) {
-      document.addEventListener('DOMContentLoaded', function () {
-        FastClick.attach(document.body);
-      }, false);
-    }
+    // if ('addEventListener' in document) {
+    //   document.addEventListener('DOMContentLoaded', function () {
+    //     FastClick.attach(document.body);
+    //   }, false);
+    // }
     if (!window.Promise) {
       document.writeln('<script src="https://as.alipayobjects.com/g/component/es6-promise/3.2.2/es6-promise.min.js"' + '>' + '<' + '/' + 'script>');
     }
@@ -41,7 +41,7 @@
 
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
-  <div id="root"></div>
+  <div id="root" οndragstart="return false;" ></div>
   <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
