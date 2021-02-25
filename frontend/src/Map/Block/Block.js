@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import cat from '../../Image/cat.png';
 import {
+  Popover
+} from 'antd-mobile';
+import {
   Modal,
   Button
 } from 'antd';
@@ -14,12 +17,13 @@ export default class Block extends Component {
     showBlock: false,
     showForm: false,
     name: '',
-    id: ''
+    id: '',
+    showPopover: true
   }
 
   onBlockClick = () => {
     console.log("clicked" + this.props.data.block_id);
-    this.setState({ showBlock: true });
+    this.setState({ showBlock: true, showPopover: false});
   }
 
   onSeatClick = (seatID) => {
@@ -28,11 +32,11 @@ export default class Block extends Component {
       showForm: true,
       seatID: seatID,
       name: '',
-      id: ''
+      id: '',
+      showPopover: false
     }, () => {
       this.removeInputStyle();
     });
-
   }
 
   onSubmit = () => {
@@ -110,13 +114,21 @@ export default class Block extends Component {
     }
   }
 
+  componentDidMount = () => {
+    if (JSON.stringify(this.props.highlight)!=="{}"){
+      var highlight = this.props.highlight;
+      document.getElementById(highlight.floor_id+'-'+highlight.block_id+'-'+highlight.seat_id).focus();
+    }
+  }
+
   render() {
     var seats = [];
     var seatsDetail = [];
-    for (var i = 0, seat_index = 0; i < this.props.data.col; i++) {
+    var data = this.props.data;
+    for (var i = 0, seat_index = 0; i < data.col; i++) {
       var cols = [];
       var colsDetail = []
-      for (var k = 0; k < this.props.data.rows; k++, seat_index++) {
+      for (var k = 0; k < data.rows; k++, seat_index++) {
         var style = {
           height: '30px',
           width: '30px',
@@ -132,13 +144,33 @@ export default class Block extends Component {
           display: 'table-cell',
           verticalAlign: 'middle'
         }
-        var popup = (
-          <div>123</div>
-        );
-        var seat = this.props.data.seat_list[seat_index];
-        var id = this.props.data.floor_id+'-'+this.props.data.block_id+'-'+seat.seat_id;
+        var seat = data.seat_list[seat_index];
+        var id = data.floor_id + '-' + data.block_id + '-' + seat.seat_id;
         if (seat.status) {
-          cols.push(<div className='greyCircleBorder' id={id} style={style}><img src={cat} style={{ width: '24px' }} /></div>);
+          var highlight = this.props.highlight;
+          if (data.floor_id === highlight.floor_id && data.block_id === highlight.block_id && seat.seat_id === highlight.seat_id) {
+            cols.push(
+              <Popover
+                overlayStyle={{ color: 'currentColor' }}
+                visible={this.state.showPopover}
+                onCancel={()=>{this.setState({showPopover:false})}}
+                placement={'top'}
+                align={{
+                  overflow: { adjustY: 0, adjustX: 0 }
+                }}
+                overlay={[
+                  (<Popover.Item>{seat.staff_name+' '+highlight.id}</Popover.Item>),
+                  (<Popover.Item>{'信利康 ' + data.floor_id + '楼 ' + data.block_id + '桌 '+seat.seat_id+'座'}</Popover.Item>),
+                ]}
+              >
+                <div tabIndex={id} className='greyCircleBorder' id={id} style={{ height: '30px', width: '30px', textAlign: 'center', borderColor:'#108ee9', boxShadow: '1px 1px 5px #108ee9'}}>
+                  <img src={cat} style={{ width: '24px'}} />
+                </div>
+              </Popover>
+            );
+          } else {
+            cols.push(<div className='greyCircleBorder' id={id} style={style}><img src={cat} style={{ width: '24px' }} /></div>);
+          }
           colsDetail.push(
             <div className='greyCircleBorder' style={style2}>
               <div style={style3}>
@@ -167,11 +199,11 @@ export default class Block extends Component {
 
     return (
       <React.Fragment>
-        <div className='greyCircleBorder' style={{ padding: '5px', display: 'inline-block' }} onClick={this.onBlockClick}>
+        <div className='greyCircleBorder' style={{ padding: '5px', display: 'inline-block', boxShadow: '1px 1px 3px #C0C0C0'}} onClick={this.onBlockClick}>
           {seats}
         </div>
         <Modal
-          title={'信利康' + this.props.data.floor_id + '楼 ' + this.props.data.block_id + '桌 '}
+          title={'信利康 ' + data.floor_id + '楼 ' + data.block_id + '桌 '}
           visible={this.state.showBlock}
           onCancel={() => { this.setState({ showBlock: false }) }}
           okButtonProps={{ style: { display: 'none' } }}
@@ -179,13 +211,13 @@ export default class Block extends Component {
           centered
         >
           <div style={{ overflowX: 'auto' }}>
-            <div id='seatContainer' style={{ width: this.props.data.col * 150 + 'px', margin: 'auto', textAlign: 'center' }}>
+            <div id='seatContainer' style={{ width: data.col * 150 + 'px', margin: 'auto', textAlign: 'center' }}>
               {seatsDetail}
             </div>
           </div>
         </Modal>
         <Modal
-          title={'入座 信利康' + this.props.data.floor_id + '楼 ' + this.props.data.block_id + '桌 ' + this.state.seatID + '座'}
+          title={'入座 信利康 ' + data.floor_id + '楼 ' + data.block_id + '桌 ' + this.state.seatID + '座'}
           visible={this.state.showForm}
           onCancel={() => { this.setState({ showForm: false }) }}
           cancelButtonProps={{ style: { display: 'none' } }}

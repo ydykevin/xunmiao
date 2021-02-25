@@ -47,7 +47,7 @@ export default class Home extends Component {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
         <Navbar zoom={this.zoom} setMapVisible={(visible) => this.setState({ mapVisible: visible })} setHighlight={(highlight) => this.setHighlight(highlight)} />
-        <div style={{ flex: '1', margin: '10px', backgroundColor: '#C0C0C0', overflowY: 'auto', overflowX: 'auto' }}>
+        <div style={{ flex: '1', margin: '10px', backgroundColor: '#C0C0C0', border:'1px solid #C0C0C0', overflowY: 'auto', overflowX: 'auto' }}>
           {
             this.state.mapVisible ?
               <XLK30 onRef={this.onRef} data={this.state.data} highlight={this.state.highlight} />

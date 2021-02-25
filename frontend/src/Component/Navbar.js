@@ -9,7 +9,8 @@ import {
 import {
   Row,
   Col,
-  Select
+  Select,
+  Modal
 } from 'antd';
 import {
   HomeOutlined,
@@ -25,7 +26,9 @@ export default class Navbar extends Component {
 
   state = {
     navOpen: false,
-    loadingSearch: false
+    loadingSearch: false,
+    showResult: false,
+    result: []
   }
 
   onNavOpenChange = () => {
@@ -62,24 +65,31 @@ export default class Navbar extends Component {
       return;
     }
 
-    this.props.setMapVisible(false);
+    this.setState({ loadingSearch: true });
 
     let formData = new FormData();
     formData.append('keyword', keyword);
 
     axios.post(global.url + '/search', formData).then(res => {
       console.log(res);
-      if (res.data.length === 1) {
-        // console.log("1");
-        this.props.setHighlight(res.data[0]);
-      } else if (res.data.length > 1) {
-        console.log(">1");
+      var result = [];
+      if (res.data.length > 0) {
+        for (let i = 0; i < res.data.length; i++) {
+          let data = res.data[i];
+          result.push(<div className='greyCircleBorder' onClick={() => {
+            this.setState({ showResult: false });
+            this.props.setHighlight(data);
+          }} style={{ padding: '10px', marginTop: '20px', marginBottom: '20px' }}>{'姓名：' + data.name}<br />{'工号：' + data.id}</div>);
+        }
+        this.setState({ result: result, showResult: true });
       } else {
-        console.log("nothing");
+        showMessage('无喵可寻', false);
       }
+      this.setState({ loadingSearch: false });
     }).catch(err => {
       console.log(err.response);
       showMessage('查询失败，请联系管理员');
+      this.setState({ loadingSearch: false });
     });
   }
 
@@ -157,6 +167,18 @@ export default class Navbar extends Component {
             <div style={textStyle}>点击工位查看详情</div>
           </Col>
         </Row>
+        <Modal
+          title={'选择你想找的喵'}
+          visible={this.state.showResult}
+          onCancel={() => { this.setState({ showResult: false }) }}
+          okButtonProps={{ style: { display: 'none' } }}
+          cancelButtonProps={{ style: { display: 'none' } }}
+          centered
+        >
+          <div style={{ textAlign: 'center', paddingLeft: '10px', paddingRight: '10px' }}>
+            {this.state.result}
+          </div>
+        </Modal>
       </React.Fragment>
     )
   }
